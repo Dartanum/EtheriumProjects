@@ -89,12 +89,14 @@ contract Bank {
             if(total < payment) { //если оставшаяся сумма кредита меньше, чем платеж, то вернуть разницу отправителю
                difference = payment - total;
                clients[i].credit.totalSum = 0;
+			   clients[i].balance -= total;
                msg.sender.transfer(difference);
                clients[i].credit = Credit(0, 0, 0, 0);
                Storage += total;
             }
             else {
                clients[i].credit.totalSum -= payment;
+			   clients[i].balance -= payment;
             }
             break;
          }
