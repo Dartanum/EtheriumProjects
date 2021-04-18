@@ -1,0 +1,8 @@
+let bank = await Bank.deployed()
+bank.register("test", "test", 20, {from: accounts[1]})
+bank.getBalance({from: accounts[1]})
+bank.takeCredit("test", "test", 10, 6, {from: accounts[1]})
+bank.returnCredit(10, {from: accounts[1]})
+bank.getBalance({from: accounts[1]})
+bank.returnCredit(5, {from: accounts[1]})
+bank.getBalance({from: accounts[1]})
