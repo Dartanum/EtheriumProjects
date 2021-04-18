@@ -36,7 +36,7 @@ contract Gachi {
 
     string public constant name = "gachi"; //название монеты
     string public constant symbol = "GCH"; //символ монеты (как USD дял доллара)
-    uint8 public constant decimal = 10; //количество знаков после запятой
+    uint8 public constant decimal = 2; //количество знаков после запятой
 
     uint256 public _totalSupply; //сколько всего токенов выпущено
 
