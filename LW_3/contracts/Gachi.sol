@@ -1,14 +1,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
-/**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
- */
 library SafeMath {
 
-  /**
-  * @dev Multiplies two numbers, throws on overflow.
-  */
   function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
     if (a == 0) {
       return 0;
@@ -18,9 +11,6 @@ library SafeMath {
     return c;
   }
 
-  /**
-  * @dev Integer division of two numbers, truncating the quotient.
-  */
   function div(uint256 a, uint256 b) internal pure returns (uint256) {
     // assert(b > 0); // Solidity automatically throws when dividing by 0
     // uint256 c = a / b;
@@ -28,17 +18,11 @@ library SafeMath {
     return a / b;
   }
 
-  /**
-  * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-  */
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
     assert(b <= a);
     return a - b;
   }
 
-  /**
-  * @dev Adds two numbers, throws on overflow.
-  */
   function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
     c = a + b;
     assert(c >= a);
@@ -74,7 +58,7 @@ contract Gachi {
         _totalSupply = _totalSupply.add(_value);
     }
 
-    function balanceOf(address owner) public view returns(uint) { //узнать баланс на указанном адресе
+    function balanceOf(address owner) public view returns(uint256) { //узнать баланс на указанном адресе
         return balances[owner];
     }
 
@@ -93,7 +77,7 @@ contract Gachi {
         emit Transfer(_from, _to, _value);
     }
 
-    function approve(address _spender, uint256 _value) public { //установление текущему адресу снимать сумму _value с адреса _spender
+    function approve(address _spender, uint256 _value) public { //установление снимать сумму _value адресу _spender с текущего адреса
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
     }
@@ -102,6 +86,7 @@ contract Gachi {
       allowed[_giver][_spender] = _value;
       emit Approval(_giver, _spender, _value);
     }
+
     function allowance(address _owner, address _spender) public view returns (uint256 remaining) { //сколько валюты разрешено снимать адресу _owner с адреса _spender
         return allowed[_owner][_spender];
     }

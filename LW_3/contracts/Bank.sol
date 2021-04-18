@@ -16,7 +16,7 @@ contract Bank{
       Credit credit;
    }
    uint256 constant percentageRate = 5; //процентная ставка
-   uint256 private Storage; //количество эфира в контракте
+   uint256 private Storage; //количество токенов в контракте
    uint private numberClient; //количество клиентов
    address payable private owner; //адрес владельца контракта
    Client[] private clients; //массив клиентов
@@ -84,7 +84,7 @@ contract Bank{
       for(uint i = 0; i < numberClient; i++) {
          if(clients[i].id == msg.sender) { 
             total = clients[i].credit.totalSum;
-            if(total < payment) {
+            if(total <= payment) {
                clients[i].balance -= total;
                token.transferFrom(msg.sender, address(this), total);
                clients[i].credit = Credit(0, 0, 0);
@@ -94,19 +94,18 @@ contract Bank{
                token.transferFrom(msg.sender, address(this), payment);
                clients[i].credit.totalSum -= payment;
                clients[i].balance -= payment;
-               if(clients[i].credit.totalSum == 0)
-                  clients[i].credit = Credit(0, 0, 0);
+               Storage += payment;
             }
             break;
          }
       }
    }
 
-   function getStorage() public view checkOwner returns(uint256) { //узнать сколько эфир в хранилище
+   function getStorage() public view checkOwner returns(uint256) { //узнать сколько токенов в хранилище
       return Storage;
    }
 
-   function addToStorage(uint256 _value) public checkOwner { //добавить в контракт эфир
+   function addToStorage(uint256 _value) public checkOwner { //добавить в контракт токены
       Storage += _value;
       token.mint(address(this), _value);
    }
