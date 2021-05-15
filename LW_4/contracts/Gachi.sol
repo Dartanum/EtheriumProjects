@@ -70,10 +70,10 @@ contract Gachi {
     }
 
     function transferFrom(address _from, address _to, uint256 _value) public { //перевод средств с адреса на адрес
-        require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value);
+        require(balances[_from] >= _value && allowed[_from][_to] >= _value);
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+        allowed[_from][_to] = allowed[_from][_to].sub(_value);
         emit Transfer(_from, _to, _value);
     }
 
@@ -82,7 +82,7 @@ contract Gachi {
         emit Approval(msg.sender, _spender, _value);
     }
 
-    function allowance(address _owner, address _spender) public view returns (uint256 remaining) { //сколько валюты разрешено снимать адресу _owner с адреса _spender
+    function allowance(address _owner, address _spender) public view returns (uint256 remaining) { //сколько валюты разрешено снимать адресу _spender с адреса _owner
         return allowed[_owner][_spender];
     }
 }
