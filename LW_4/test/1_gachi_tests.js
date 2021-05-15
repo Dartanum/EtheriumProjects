@@ -62,4 +62,4 @@ contract("Gachi test", async accounts => {
         assert.equal(balance_1_before_transfer, Decimal(balance_1_after_transfer));
         assert.equal(balance_2_before_transfer, Decimal(balance_2_after_transfer) - payment_amount);
     });
-})
+});
