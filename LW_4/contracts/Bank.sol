@@ -1,4 +1,6 @@
-pragma solidity >=0.4.22 <0.9.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+pragma abicoder v2;
 
 import "contracts/Gachi.sol";
 contract Bank{
@@ -16,17 +18,17 @@ contract Bank{
       Credit credit;
    }
    uint256 constant percentageRate = 5; //процентная ставка
-   uint256 private Storage; //количество токенов в контракте
+   uint256 private _storage; //количество токенов в контракте
    uint private numberClient; //количество клиентов
    address payable private owner; //адрес владельца контракта
    Client[] private clients; //массив клиентов
    Gachi public token;
 
    constructor (address _token, uint256 startSum) public {
-      owner = msg.sender;
+      owner = payable(address(msg.sender));
       token = Gachi(_token);
       token.mint(address(this), startSum);
-      Storage = token.totalSupply();
+      _storage = token.totalSupply();
    }
 
    modifier checkOwner() { //проверка, что зашел владелец контракта
@@ -35,7 +37,7 @@ contract Bank{
    }
 
    event Register(address id, string message); 
-   event CreditDenied(address id, string message);
+   event CreditDenied(address id, string message, address bank_address);
    event TakeCredit(address id, uint percent, uint sum, uint number_month);
 
    function register(string memory login, string memory password, uint256 startSum) public { //регистрация нового клиента
@@ -51,7 +53,7 @@ contract Bank{
       if(!isExist) {
          emit Register(msg.sender, "Success register");
          token.mint(msg.sender, startSum);
-         clients.push(Client(msg.sender, login, password, startSum, Credit(0, 0, 0)));
+         clients.push(Client(payable(address(msg.sender)), login, password, startSum, Credit(0, 0, 0)));
          numberClient++;
       }
    }
@@ -63,20 +65,20 @@ contract Bank{
    function takeCredit(string memory login, string memory password, uint256 num, uint256 month) public { //взятие кредита
       for(uint i = 0; i < numberClient; i++) {
          if(checkClient(clients[i], login, password)) {
-            if(Storage >= num && clients[i].credit.totalSum == 0)  {
+            if(_storage >= num && clients[i].credit.totalSum == 0)  {
                uint256 totalSum = calculateTotalSum(num, month);
                if(token.allowance(msg.sender, address(this)) >= totalSum) {
                   clients[i].balance += num; 
                   clients[i].credit = Credit(num, month, totalSum);
-                  Storage -= num;
+                  _storage -= num;
                   token.transfer(clients[i].id, num);
                   emit TakeCredit(msg.sender, percentageRate, clients[i].id.balance, month);
                   break;
-               }                  
-            } 
-            
-            else {
-               emit CreditDenied(clients[i].id, "Bank cannot give you credit");
+               } else {
+                  emit CreditDenied(clients[i].id, "Bank cannot give you credit (there is no allowance).", address(this));
+               }                 
+            } else {
+               emit CreditDenied(clients[i].id, "Bank cannot give you credit (the sum of credit is too big)", address(this));
             }
          }
       }
@@ -91,13 +93,13 @@ contract Bank{
                clients[i].balance -= total;
                token.transferFrom(msg.sender, address(this), total);
                clients[i].credit = Credit(0, 0, 0);
-               Storage += total;
+               _storage += total;
             }
             else {
                token.transferFrom(msg.sender, address(this), payment);
                clients[i].credit.totalSum -= payment;
                clients[i].balance -= payment;
-               Storage += payment;
+               _storage += payment;
             }
             break;
          }
@@ -105,11 +107,11 @@ contract Bank{
    }
 
    function getStorage() public view checkOwner returns(uint256) { //узнать сколько токенов в хранилище
-      return Storage;
+      return _storage;
    }
 
    function addToStorage(uint256 _value) public checkOwner { //добавить в контракт токены
-      Storage += _value;
+      _storage += _value;
       token.mint(address(this), _value);
    }
 
@@ -118,6 +120,10 @@ contract Bank{
    }
 
    function getBalance() view public returns(uint256){
-      return token.balanceOf(msg.sender);
+      return token.balanceOf(address(this));
+   }
+   function getClients() view public returns(Client[] memory){
+      Client[] memory cl = clients;
+      return cl;
    }
 }
